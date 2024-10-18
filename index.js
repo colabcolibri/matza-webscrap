@@ -37,12 +37,12 @@ async function scrapBadges(url) {
       },
       // games
       {
-        title: "Level 1: Google Cloud Adventures",
+        title: "Level 1: Automation and CI/CD Skills",
         type: 'game',
         points: 1
       },
       {
-        title: "Level 2: Google Cloud Adventures",
+        title: "Level 2: Cloud and Serverless Solutions",
         type: 'game',
         points: 1
       },
@@ -178,12 +178,10 @@ async function scrapBadges(url) {
         points: 0.5,
       },
     ];
-    
+    const textContent = (elem) => (elem ? elem.textContent.trim() : "");
     const h1Name = document.querySelector("h1.ql-display-small");
     const name = textContent(h1Name);
-    console.log(name);
     const divBadges = [...document.querySelectorAll("div.profile-badge")];
-    const textContent = (elem) => (elem ? elem.textContent.trim() : "");
     const badgesInfo = divBadges.map((badge) => ({
       title: textContent(badge.querySelector("span.ql-title-medium")),
       month:
@@ -210,7 +208,7 @@ async function scrapBadges(url) {
     );
 
     const allValidBadges = validBadges.map(({ title, year, month, day, points }) => ({ title, date: new Date(year, month - 1, day).toISOString().split('T')[0], points }))
-    console.log(allValidBadges);
+    // console.log(allValidBadges);
 
     return {
       name,
@@ -219,7 +217,7 @@ async function scrapBadges(url) {
     };
   });
 
-  console.log({ ...badges });
+  // console.log({ ...badges });
 
   await browser.close();
 
