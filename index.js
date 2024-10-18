@@ -3,7 +3,7 @@ const puppeteer = require("puppeteer");
 const app = express()
 const port = 3000
 
-async function scrapBadges(name, url) {
+async function scrapBadges(url) {
   const browser = await puppeteer.launch({
     headless: true,
     args: ["--no-sandbox"],
@@ -178,6 +178,10 @@ async function scrapBadges(name, url) {
         points: 0.5,
       },
     ];
+    
+    const h1Name = document.querySelector("h1.ql-display-small");
+    const name = textContent(h1Name);
+    console.log(name);
     const divBadges = [...document.querySelectorAll("div.profile-badge")];
     const textContent = (elem) => (elem ? elem.textContent.trim() : "");
     const badgesInfo = divBadges.map((badge) => ({
@@ -205,39 +209,31 @@ async function scrapBadges(name, url) {
         && validDate(badge.year, badge.month, badge.day)
     );
 
-    const allValidBadges = validBadges.map(({ title, year, month, day, points }) => ({ title, date: new Date(year, month - 1, day).toISOString(), points }))
+    const allValidBadges = validBadges.map(({ title, year, month, day, points }) => ({ title, date: new Date(year, month - 1, day).toISOString().split('T')[0], points }))
     console.log(allValidBadges);
 
     return {
+      name,
       points: allValidBadges.reduce((sum, value) => (sum + value.points), 0),
       badges: allValidBadges,
     };
   });
 
-  console.log({ name, ...badges });
+  console.log({ ...badges });
 
   await browser.close();
 
-  return { name, url, ...badges };
+  return { url, ...badges };
 }
 
-app.get('/', async (req, res) => {
-  const students = [
-    {
-      name: 'Rafael Paiva de Oliveira',
-      url: 'https://www.cloudskillsboost.google/public_profiles/ee82c7e4-192e-43bf-a63c-bc321bbcd1b8'
-    },
-    {
-      name: 'Gabriel Chiareli',
-      url: 'https://www.cloudskillsboost.google/public_profiles/ef78cac8-642d-4907-896e-e3856270bd93'
-    },
-  ]
-
-  const promises = students.map(({ name, url }) => scrapBadges(name, url));
-  const data = await Promise.all(promises);
-  console.log(data)
-
-  res.json({ data })
+app.get('/points', async (req, res) => {
+  try {
+    const { url } = req.query;
+    const data = await scrapBadges(url);
+    res.json({ data })
+  } catch (error) {
+    res.status(400).send();
+  }
 })
 
 app.listen(port, () => {
