@@ -587,7 +587,7 @@ async function scrapBadges(url) {
 
     return {
       name,
-      points: allValidBadges.reduce((sum, value) => sum + value.points, 0),
+      points: Math.floor(allValidBadges.reduce((sum, value) => sum + value.points, 0)),
       badges: allValidBadges,
     };
   });
